@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AO3 Random Work Generator</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-area">
+                <img src="https://archiveofourown.org/images/ao3_logos/logo_42.png" alt="AO3 Logo" class="logo">
+            </div>
+            <h1>Random Work Generator</h1>
+            <p>Enter your preferences below to find a random fanfic on AO3.</p>
+        </header>
+
+        <main>
+
+
+            <form id="filterForm">
+                <div class="form-group">
+                    <label for="tags">Tags (comma separated)</label>
+                    <input type="text" id="tags" placeholder="e.g. Angst, Fluff, Coffee Shop AU">
+                    <small>Separate multiple tags with commas.</small>
+                </div>
+
+                <div class="form-group autocomplete-wrapper">
+                    <label for="fandom">Fandom (Optional)</label>
+                    <input type="text" id="fandom" placeholder="e.g. Sherlock (TV) or Sherlock Holmes/John Watson"
+                        autocomplete="off">
+                    <div id="autocompleteDropdown" class="autocomplete-dropdown hidden"></div>
+                    <small>Start typing to see suggestions</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Relationships</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" name="category" value="F/F"> F/F</label>
+                        <label><input type="checkbox" name="category" value="M/M"> M/M</label>
+                        <label><input type="checkbox" name="category" value="F/M"> F/M</label>
+                        <label><input type="checkbox" name="category" value="Multi"> Multi</label>
+                        <label><input type="checkbox" name="category" value="Gen"> Gen</label>
+                        <label><input type="checkbox" name="category" value="Other"> Other</label>
+                    </div>
+                </div>
+
+                <button type="submit" id="generateBtn">Generate Random Work</button>
+            </form>
+
+            <div id="loading" class="hidden">
+                <div class="spinner"></div>
+                <p>Searching the archives... <br><span class="sub-text">(This might take a moment)</span></p>
+            </div>
+
+            <div id="error" class="error-msg hidden"></div>
+
+            <div id="result" class="card hidden">
+                <h2 id="resTitle">Work Title</h2>
+                <p class="meta">by <span id="resAuthor">Author</span></p>
+
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="label">Rating</span>
+                        <span id="resRating" class="value">T</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">Words</span>
+                        <span id="resWords" class="value">10,000</span>
+                    </div>
+                </div>
+
+                <a id="resLink" href="#" target="_blank" class="read-btn">Read on AO3</a>
+            </div>
+
+            <footer class="disclaimer">
+                <hr>
+                <p><strong>Disclaimer:</strong> This project is a randomizer tool and is not affiliated with the
+                    Organization for Transformative Works.</p>
+                <p>It does not host, copy, or store fanworks. All links redirect to Archive of Our Own.</p>
+            </footer>
+        </main>
+    </div>
+    <script src="/static/script.js"></script>
+</body>
+
+</html>
