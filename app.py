@@ -76,9 +76,17 @@ def autocomplete_fandom():
     
     try:
         import requests
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'application/json, text/javascript, */*; q=0.01',
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Referer': 'https://archiveofourown.org/',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
         response = requests.get(
             'https://archiveofourown.org/autocomplete/fandom',
             params={'term': term},
+            headers=headers,
             timeout=10
         )
         if response.status_code == 200:

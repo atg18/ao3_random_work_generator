@@ -93,7 +93,7 @@ fandomInput.addEventListener('input', function () {
         return;
     }
 
-    // Debounce: wait 300ms after user stops typing
+    // Debounce: wait 150ms after user stops typing (faster response)
     autocompleteTimeout = setTimeout(async () => {
         try {
             const response = await fetch(`/autocomplete/fandom?term=${encodeURIComponent(term)}`);
