@@ -69,6 +69,35 @@ async def _get_browser():
     return _browser
 
 
+async def _extract_work_details(work_el) -> Dict[str, Any]:
+    """Extract work details from a work blurb element."""
+    title_el = await work_el.query_selector('h4.heading a')
+    title = await title_el.text_content() if title_el else "Unknown"
+    href = await title_el.get_attribute('href') if title_el else ""
+    
+    author_els = await work_el.query_selector_all('a[rel="author"]')
+    authors = [await a.text_content() for a in author_els]
+    author = ", ".join(authors) if authors else "Anonymous"
+    
+    rating_el = await work_el.query_selector('.rating span')
+    rating = await rating_el.text_content() if rating_el else "?"
+    
+    words_el = await work_el.query_selector('dd.words')
+    words = await words_el.text_content() if words_el else "Unknown"
+    words = words.replace(",", "") if words else "Unknown"
+    
+    work_url = f"https://archiveofourown.org{href}" if href else ""
+    
+    return {
+        "title": title.strip() if title else "Unknown",
+        "author": author.strip() if author else "Anonymous",
+        "url": work_url,
+        "rating": rating.strip() if rating else "?",
+        "word_count": words.strip() if words else "Unknown",
+        "source": "live"
+    }
+
+
 def search_ao3_sync(tags: List[str], categories: List[str], fandom: str) -> Dict[str, Any]:
     """Synchronous wrapper for browser-based AO3 search."""
     with _browser_lock:
@@ -123,49 +152,39 @@ async def _search_ao3_async(tags: List[str], categories: List[str], fandom: str)
                 else:
                     total_pages = 1
                 
-                # Step 2: Pick a random page (cap at 100)
+                # Step 2: Pick a random page (cap at 100 for speed)
                 max_page = min(total_pages, 100)
                 random_page = random.randint(1, max_page)
                 
+                # Store page 1 works in case random page times out
+                page1_works = await page.query_selector_all('.work.blurb')
+                
                 if random_page > 1:
-                    url = build_search_url(tags, categories, fandom, page=random_page)
-                    await page.goto(url, timeout=BROWSER_TIMEOUT)
-                    await page.wait_for_selector('.work.blurb', timeout=15000)
+                    try:
+                        url = build_search_url(tags, categories, fandom, page=random_page)
+                        await page.goto(url, timeout=BROWSER_TIMEOUT)
+                        await page.wait_for_selector('.work.blurb', timeout=15000)
+                    except:
+                        # Random page timed out - fallback to page 1 results
+                        if page1_works:
+                            work_el = random.choice(page1_works)
+                            return await _extract_work_details(work_el)
+                        return {"error": "AO3 page load timeout"}
                 
                 # Step 3: Extract works
                 works = await page.query_selector_all('.work.blurb')
                 
                 if not works:
-                    return {"error": "No works found on page"}
+                    # Fallback to page 1 if current page is empty
+                    if page1_works:
+                        works = page1_works
+                    else:
+                        return {"error": "No works found on page"}
                 
                 work_el = random.choice(works)
                 
-                # Extract details
-                title_el = await work_el.query_selector('h4.heading a')
-                title = await title_el.text_content() if title_el else "Unknown"
-                href = await title_el.get_attribute('href') if title_el else ""
-                
-                author_els = await work_el.query_selector_all('a[rel="author"]')
-                authors = [await a.text_content() for a in author_els]
-                author = ", ".join(authors) if authors else "Anonymous"
-                
-                rating_el = await work_el.query_selector('.rating span')
-                rating = await rating_el.text_content() if rating_el else "?"
-                
-                words_el = await work_el.query_selector('dd.words')
-                words = await words_el.text_content() if words_el else "Unknown"
-                words = words.replace(",", "") if words else "Unknown"
-                
-                work_url = f"https://archiveofourown.org{href}" if href else ""
-                
-                return {
-                    "title": title.strip() if title else "Unknown",
-                    "author": author.strip() if author else "Anonymous",
-                    "url": work_url,
-                    "rating": rating.strip() if rating else "?",
-                    "word_count": words.strip() if words else "Unknown",
-                    "source": "live"
-                }
+                # Extract and return work details
+                return await _extract_work_details(work_el)
                 
             finally:
                 await context.close()
