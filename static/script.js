@@ -54,6 +54,11 @@ document.getElementById('filterForm').addEventListener('submit', async function 
     resultDiv.classList.add('hidden');
     errorDiv.classList.add('hidden');
 
+    // Hide autocomplete and prevent it from reopening
+    isSearching = true;
+    clearTimeout(autocompleteTimeout);
+    document.getElementById('autocompleteDropdown').classList.add('hidden');
+
 
     try {
         const response = await fetch('/generate', {
@@ -90,6 +95,7 @@ document.getElementById('filterForm').addEventListener('submit', async function 
     } finally {
         generateBtn.disabled = false;
         loadingDiv.classList.add('hidden');
+        isSearching = false;  // Allow autocomplete again
     }
 });
 
@@ -104,11 +110,15 @@ function showError(msg) {
 // Autocomplete functionality
 let autocompleteTimeout;
 let currentFocus = -1;
+let isSearching = false;  // Flag to prevent autocomplete during search
 
 const fandomInput = document.getElementById('fandom');
 const dropdown = document.getElementById('autocompleteDropdown');
 
 fandomInput.addEventListener('input', function () {
+    // Don't show autocomplete while a search is in progress
+    if (isSearching) return;
+
     const term = this.value.trim();
 
     clearTimeout(autocompleteTimeout);

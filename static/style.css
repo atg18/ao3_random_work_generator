@@ -334,14 +334,14 @@ button:disabled {
     top: 100%;
     left: 0;
     right: 0;
-    background: white;
+    background: var(--card-bg);
     border: 1px solid var(--border);
     border-top: none;
     border-radius: 0 0 4px 4px;
     max-height: 200px;
     overflow-y: auto;
     z-index: 1000;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
 .autocomplete-dropdown.hidden {
@@ -351,7 +351,9 @@ button:disabled {
 .autocomplete-item {
     padding: 10px 15px;
     cursor: pointer;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    transition: background-color 0.2s ease;
 }
 
 .autocomplete-item:last-child {
