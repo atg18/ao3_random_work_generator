@@ -34,10 +34,6 @@ deploy
 
 free tier services sleep after inactivity.
 
-local
-
-to run locally:
-
 pip install -r requirements.txt
 playwright install chromium
 python app.py
